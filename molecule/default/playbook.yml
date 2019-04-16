@@ -1,0 +1,66 @@
+---
+
+
+- name: Build the distributables
+  hosts: localhost
+  tasks:
+
+    - name: build the packages
+      shell: |
+        set -euox pipefail
+        pwd
+        python setup.py bdist_wheel sdist
+      args:
+        chdir: ../..
+
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    whl_file: "{{ lookup('fileglob', '{{ playbook_dir }}/../../dist/*.whl') }}"
+    tar_gz_file: "{{ lookup('fileglob', '{{ playbook_dir }}/../../dist/*.tar.gz') }}"
+  tasks:
+
+    - name: deploy packages
+      copy:
+        src: "{{ item }}"
+        dest: /tmp/src/
+      with_items:
+        - "{{ whl_file }}"
+        - "{{ tar_gz_file }}"
+
+    - name: detect all pythons installed
+      shell: type -p python python3
+      args:
+        warn: false
+      register: result
+      # type would return non zero exit code if one command is not found so
+      # we fail only if no output is given (errors go to stderr)
+      failed_when: not result.stdout
+      tags:
+        - skip_ansible_lint
+
+    - name: test install from wheel to virtualenv
+      shell: |
+        set -euxo pipefail
+        {{ item }} -m virtualenv --version >/dev/null || {{ item }} -m pip install virtualenv
+        {{ item }} -m virtualenv ~/v
+        source ~/v/bin/activate
+        {{ item }} -m pip install file:///tmp/src/{{ whl_file | basename }}
+        # check that we can import it
+        {{ item }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
+        # check for conflicts after install
+        {{ item }} -m pip check
+        deactivate
+        rm -rf ~/v/
+      with_items:
+        - "{{ result.stdout_lines }}"
+
+    - name: install w/o virtualenv does not mess original library
+      shell: |
+        set -euxo pipefail
+        {{ item }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
+        {{ item }} -m pip install file:///tmp/src/{{ whl_file | basename }}
+        {{ item }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
+      with_items:
+        - "{{ result.stdout_lines }}"

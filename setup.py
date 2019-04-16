@@ -5,7 +5,13 @@
 
 from setuptools import find_packages
 from setuptools import setup
+import warnings
 
+
+warnings.filterwarnings(
+    'ignore',
+    "Unknown distribution option: 'long_description_content_type'",
+    UserWarning)
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -47,6 +53,7 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/ssbarnea/selinux',
-    version='0.1.2',
+    version='0.1.3',
     zip_safe=False,
+    data_files=[("", ["LICENSE"])],
 )
