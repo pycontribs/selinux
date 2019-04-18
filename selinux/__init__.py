@@ -43,7 +43,7 @@ if platform.system() == 'Linux':
     location = '/usr/%s/python%s/site-packages' % \
         (arch, ".".join(platform.python_version_tuple()[:2]))
 
-    if not os.path.isdir(location):
+    if not os.path.isdir(os.path.join(location, 'selinux')):
         raise Exception(
             "Failed to detect selinux python bindings at %s" % location)
     else:
