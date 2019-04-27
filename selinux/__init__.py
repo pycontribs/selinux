@@ -9,8 +9,10 @@ __author__ = """Sorin Sbarnea"""
 __email__ = 'sorin.sbarnea@gmail.com'
 __version__ = '0.1.3'
 
+import json
 import os
 import platform
+import subprocess
 import sys
 try:
     from imp import reload
@@ -33,23 +35,47 @@ class add_path(object):
             pass
 
 
-if platform.system() == 'Linux':
-
-    if platform.architecture()[0] == '64bit':
-        arch = 'lib64'
-    else:
-        arch = 'lib'
-
-    location = '/usr/%s/python%s/site-packages' % \
-        (arch, ".".join(platform.python_version_tuple()[:2]))
-
-    if not os.path.isdir(location):
-        raise Exception(
-            "Failed to detect selinux python bindings at %s" % location)
-    else:
+def add_location(location):
+    """Try to add a possble location for the selinux module"""
+    if os.path.isdir(os.path.join(location, 'selinux')):
         with add_path(location):
             # And now we replace outselves with the original selinux module
             reload(sys.modules['selinux'])
             # Validate that we can perform libselinux calls
             if sys.modules['selinux'].is_selinux_enabled() not in [0, 1]:
                 raise RuntimeError("is_selinux_enabled returned error.")
+            return True
+    return False
+
+
+def get_system_sitepackages():
+    """Get sitepackage locations from sytem python"""
+    system_python = "/usr/bin/python%s" % platform.python_version_tuple()[0]
+
+    system_sitepackages = json.loads(
+        subprocess.check_output(
+            [system_python, "-c",
+             "import json, site; print(json.dumps(site.getsitepackages()))"
+             ]
+        ).decode("utf-8")
+    )
+    return system_sitepackages
+
+
+def check_system_sitepackages():
+    """Try add selinux module from any of the python site-packages"""
+
+    success = False
+    system_sitepackages = get_system_sitepackages()
+    for candidate in system_sitepackages:
+        success = add_location(candidate)
+        if success:
+            break
+
+    if not success:
+        raise Exception("Failed to detect selinux python bindings at %s" %
+                        system_sitepackages)
+
+
+if platform.system() == 'Linux':
+    check_system_sitepackages()
