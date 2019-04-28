@@ -1,6 +1,5 @@
 ---
 
-
 - name: Build the distributables
   hosts: localhost
   tasks:
@@ -11,6 +10,7 @@
         pwd
         python setup.py bdist_wheel sdist
       args:
+        executable: /bin/bash
         chdir: ../..
 
 - name: Converge
@@ -32,6 +32,7 @@
     - name: detect all pythons installed
       shell: type -p python python3
       args:
+        executable: /bin/bash
         warn: false
       register: result
       # type would return non zero exit code if one command is not found so
@@ -41,26 +42,41 @@
         - skip_ansible_lint
 
     - name: test install from wheel to virtualenv
+      environment:
+        PYTHONWARNINGS: ignore:DEPRECATION::pip._internal.cli.base_command
+        PIP_DISABLE_PIP_VERSION_CHECK: 1
       shell: |
-        set -euxo pipefail
-        {{ item }} -m virtualenv --version >/dev/null || {{ item }} -m pip install virtualenv
+        # -u not included due https://github.com/pypa/virtualenv/issues/1029
+        set -exo pipefail
+        {{ item }} -m virtualenv --version >/dev/null 2>&1 || {{ item }} -m pip install --user virtualenv
         {{ item }} -m virtualenv ~/v
         source ~/v/bin/activate
         {{ item }} -m pip install file:///tmp/src/{{ whl_file | basename }}
         # check that we can import it
         {{ item }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
+        # only recent pips do have `pip check`, but we upgrade it after to validate that our package installs with old pip
+        {{ item }} -m pip install --upgrade pip
         # check for conflicts after install
         {{ item }} -m pip check
         deactivate
         rm -rf ~/v/
+      args:
+        executable: /bin/bash
       with_items:
         - "{{ result.stdout_lines }}"
 
     - name: install w/o virtualenv does not mess original library
+      environment:
+        PYTHONWARNINGS: ignore:DEPRECATION::pip._internal.cli.base_command
+        PIP_DISABLE_PIP_VERSION_CHECK: 1
       shell: |
         set -euxo pipefail
         {{ item }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
         {{ item }} -m pip install file:///tmp/src/{{ whl_file | basename }}
         {{ item }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
+        {{ item }} -m pip install --upgrade pip
+        {{ item }} -m pip check
+      args:
+        executable: /bin/bash
       with_items:
         - "{{ result.stdout_lines }}"

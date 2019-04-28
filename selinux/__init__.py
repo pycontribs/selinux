@@ -35,6 +35,14 @@ class add_path(object):
             pass
 
 
+def is_selinux_enabled():
+    return 0
+
+
+def is_selinux_mls_enabled():
+    return 0
+
+
 # selinux python library should be loaded only on selinux systems
 if platform.system() == 'Linux' and os.path.isfile('/etc/selinux/config'):
 
@@ -45,8 +53,8 @@ if platform.system() == 'Linux' and os.path.isfile('/etc/selinux/config'):
                 # And now we replace outselves with the original selinux module
                 reload(sys.modules['selinux'])
                 # Validate that we can perform libselinux calls
-                if sys.modules['selinux'].is_selinux_enabled() not in [0, 1]:
-                    raise RuntimeError("is_selinux_enabled returned error.")
+                # if sys.modules['selinux'].is_selinux_enabled() not in [0, 1]:
+                #     raise RuntimeError("is_selinux_enabled returned error.")
                 return True
         return False
 

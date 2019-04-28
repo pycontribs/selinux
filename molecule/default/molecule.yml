@@ -8,7 +8,13 @@ platforms:
     hostname: centos7
     image: centos:7
     dockerfile: ../Dockerfile.j2
-    pkg_extras: python-setuptools
+    pkg_extras: >-
+        python-setuptools
+        python-virtualenv
+        python36
+        python36-pip
+        python36-setuptools
+        python36-virtualenv
     easy_install: [pip]
     environment: &env
       http_proxy: "{{ lookup('env', 'http_proxy') }}"
@@ -18,7 +24,27 @@ platforms:
     hostname: fedora28
     image: fedora:28
     dockerfile: ../Dockerfile.j2
-    pkg_extras: python*-setuptools
+    pkg_extras: >-
+        python2-setuptools
+        python3-pip
+        python3-setuptools
+        python3-virtualenv
+    environment:
+      <<: *env
+
+  - name: ubuntu
+    hostname: xenial
+    image: ubuntu:xenial
+    dockerfile: ../Dockerfile.j2
+    pkg_extras: >-
+        python-pip
+        python-selinux
+        python-setuptools
+        python-virtualenv
+        python3-pip
+        python3-selinux
+        python3-setuptools
+        python3-virtualenv
     environment:
       <<: *env
 
