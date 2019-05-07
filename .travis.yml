@@ -26,19 +26,14 @@ jobs:
     - script:
         # package building added here purely to fail-fast if is broken
         - python setup.py sdist bdist_wheel
-        - python -m tox
-      env: TOXENV=lint
+        - travis_wait python -m tox
+      env: TOXENV=lint,py27,molecule
       python: "2.7"
       language: nodejs
       node_js:
         - "8"
-    - script: python -m tox
-      env: TOXENV=molecule
       services:
         - docker
-    - script: python -m tox
-      python: "2.7"
-      env: TOXENV=py27
     - script: python -m tox
       python: "3.4"
       env: TOXENV=py34

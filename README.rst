@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.com/pycontribs/selinux.svg?branch=master
+    :target: https://travis-ci.com/pycontribs/selinux
+
 # selinux
 Pure-python selinux shim module for use in virtualenvs in oder to avoid
 failure to load selinux in Ansible modules.
