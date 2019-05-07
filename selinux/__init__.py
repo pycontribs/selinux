@@ -7,7 +7,7 @@ inside virtualenvs: ModuleNotFoundError: No module named 'selinux'
 
 __author__ = """Sorin Sbarnea"""
 __email__ = 'sorin.sbarnea@gmail.com'
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 import json
 import os
