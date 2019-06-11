@@ -21,12 +21,13 @@ docker_skip = False
 docker_reason = ''
 try:
     import docker
-    client = docker.from_env()
+    client = docker.from_env(version='auto')
     if not client.ping():
         raise Exception("Failed to ping docker server.")
 except Exception as e:
     docker_reason = "Skipping molecule tests due: %s" % e
     docker_skip = True
+    raise e
 
 
 def pytest_generate_tests(metafunc):

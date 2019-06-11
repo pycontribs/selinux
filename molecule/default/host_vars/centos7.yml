@@ -1,0 +1,4 @@
+pythons:
+  - python2.7
+  # python3 from centos-7 does not have a libselinux
+  # see https://github.com/ansible/ansible/issues/50983
