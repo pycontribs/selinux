@@ -8,6 +8,7 @@
       shell: |
         set -euox pipefail
         pwd
+        rm -rf dist
         python setup.py bdist_wheel sdist
       args:
         executable: /bin/bash
@@ -25,21 +26,9 @@
       copy:
         src: "{{ item }}"
         dest: /tmp/src/
-      with_items:
+      loop:
         - "{{ whl_file }}"
         - "{{ tar_gz_file }}"
-
-    - name: detect all pythons installed
-      shell: type -p python python3
-      args:
-        executable: /bin/bash
-        warn: false
-      register: result
-      # type would return non zero exit code if one command is not found so
-      # we fail only if no output is given (errors go to stderr)
-      failed_when: not result.stdout
-      tags:
-        - skip_ansible_lint
 
     - name: test install from wheel to virtualenv
       environment:
@@ -49,21 +38,18 @@
         # -u not included due https://github.com/pypa/virtualenv/issues/1029
         set -exo pipefail
         {{ item }} -m virtualenv --version >/dev/null 2>&1 || {{ item }} -m pip install --user virtualenv
-        {{ item }} -m virtualenv ~/v
-        source ~/v/bin/activate
-        {{ item }} -m pip install file:///tmp/src/{{ whl_file | basename }}
+        {{ item }} -m virtualenv ~/v{{ index }}
+        source ~/v{{ index }}/bin/activate
+        {{ item }} -m pip install -v file:///tmp/src/{{ whl_file | basename }}
         # check that we can import it
         {{ item }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
-        # only recent pips do have `pip check`, but we upgrade it after to validate that our package installs with old pip
-        {{ item }} -m pip install --upgrade pip
-        # check for conflicts after install
-        {{ item }} -m pip check
         deactivate
-        rm -rf ~/v/
+        rm -rf ~/v{{ index }}
       args:
         executable: /bin/bash
-      with_items:
-        - "{{ result.stdout_lines }}"
+      loop: "{{ pythons }}"
+      loop_control:
+        index_var: index
 
     - name: install w/o virtualenv does not mess original library
       environment:
@@ -72,11 +58,10 @@
       shell: |
         set -euxo pipefail
         {{ item }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
-        {{ item }} -m pip install file:///tmp/src/{{ whl_file | basename }}
+        set
+        type pip3
+        {{ item }} -m pip install -v file:///tmp/src/{{ whl_file | basename }}
         {{ item }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
-        {{ item }} -m pip install --upgrade pip
-        {{ item }} -m pip check
       args:
         executable: /bin/bash
-      with_items:
-        - "{{ result.stdout_lines }}"
+      loop: "{{ pythons }}"
