@@ -1,11 +1,11 @@
 ---
+dist: xenial
+# Config file for automatic testing at travis-ci.org
+
+services:
+  - docker
 language: python
 
-# Build only commits on master and release tags for the "Build pushed branches" feature.
-# This prevents building twice on PRs originating from our repo ("Build pushed pull requests)".
-# See:
-#   - https://github.com/travis-ci/travis-ci/issues/1147
-#   - https://docs.travis-ci.com/user/pull-requests/#double-builds-on-pull-requests
 branches:
   only:
     - master
@@ -20,34 +20,29 @@ os:
   - linux
 before_install:
   - nvm install $TRAVIS_NODE_VERSION
-  - which tox >/dev/null || if [ -z ${VIRTUAL_ENV+x} ]; then python -m pip install --user tox tox-pyenv wheel ; else python -m pip install tox tox-pyenv wheel twine; fi
+  - which tox >/dev/null || if [ -z ${VIRTUAL_ENV+x} ]; then python -m pip install --user tox tox-pyenv; else python -m pip install tox tox-pyenv; fi
 jobs:
+  fast_finish: true
   include:
-    - script:
-        - travis_wait python -m tox
+    - name: lint,py27,molecule
       env: TOXENV=lint,py27,molecule
       python: "2.7"
-      language: nodejs
-      node_js:
-        - "8"
-      services:
-        - docker
-    - script: python -m tox
-      python: "3.4"
-      env: TOXENV=py34
-    - script: python -m tox
+    - name: py35
       python: "3.5"
       env: TOXENV=py35
-    - script: python -m tox
+    - name: py36
       python: "3.6"
-      env: TOXENV=py36 PYTHON='3.6' PYENV_VERSION='system'
-    - script: python -m pip install -q tox-travis && python -m tox
+      env: TOXENV=py36
+    - name: py37
       python: "3.7"
-      env: TOXENV=py37 PYTHON='3.7'
-      # begin: workaround to enable support for py37: https://github.com/travis-ci/travis-ci/issues/9815
-      dist: xenial
-      sudo: required
-      # end
+      env: TOXENV=py37
+    - stage: deploy
+      name: deploy
+      if: tag IS present AND type != cron
+      env: TOXENV=upload
+script:
+  - travis_wait python -m tox
+
 env:
   global:
     - PIP_DISABLE_PIP_VERSION_CHECK=1
