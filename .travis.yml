@@ -24,8 +24,6 @@ before_install:
 jobs:
   include:
     - script:
-        # package building added here purely to fail-fast if is broken
-        - python setup.py sdist bdist_wheel
         - travis_wait python -m tox
       env: TOXENV=lint,py27,molecule
       python: "2.7"
