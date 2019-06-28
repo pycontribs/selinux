@@ -9,7 +9,7 @@ language: python
 branches:
   only:
     - master
-    - /[0-9]+\.[0-9]+\.[0-9]+(-.*)?$/
+    - /[0-9]+\.[0-9]+\.[0-9]+(.*)?$/
 
 cache:
   - pip
