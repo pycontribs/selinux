@@ -7,7 +7,7 @@ trigger:
 - master
 
 pool:
-  vmImage: 'centos-latest'
+  vmImage: 'CentOS-latest'
 
 steps:
 - script: tox
