@@ -59,8 +59,11 @@ if platform.system() == 'Linux' and os.path.isfile('/etc/selinux/config'):
         return False
 
     def get_system_sitepackages():
-        """Get sitepackage locations from sytem python"""
-        system_python = sys.executable
+        """Get sitepackage locations from system python"""
+        # Do not ever use sys.executable here
+        # See https://github.com/pycontribs/selinux/issues/17 for details
+        system_python = "/usr/bin/python%s" % \
+            platform.python_version_tuple()[0]
 
         system_sitepackages = json.loads(
             subprocess.check_output([
