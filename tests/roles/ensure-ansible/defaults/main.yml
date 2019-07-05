@@ -1,0 +1,4 @@
+cacert_update_cmd: update-ca-trust
+python_exec: python
+
+expected_python_libselinux: true

@@ -24,24 +24,27 @@ before_install:
 jobs:
   fast_finish: true
   include:
-    - name: lint,py27,molecule
-      env: TOXENV=lint,py27,molecule
-      python: "2.7"
+    - name: lint,py37,distros
+      env: TOXENV=lint,py37,distros
+      python: "3.7"
     - name: py35
       python: "3.5"
       env: TOXENV=py35
     - name: py36
       python: "3.6"
       env: TOXENV=py36
-    - name: py37
-      python: "3.7"
-      env: TOXENV=py37
+    - name: py27
+      python: "2.7"
+      env: TOXENV=py27
     - stage: deploy
       name: deploy
       if: tag IS present AND type != cron
       env: TOXENV=upload
 script:
-  - travis_wait python -m tox
+  # https://github.com/travis-ci/travis-ci/issues/4190#issuecomment-353342526
+  - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+  - python -m tox
+  - kill %1
 
 env:
   global:

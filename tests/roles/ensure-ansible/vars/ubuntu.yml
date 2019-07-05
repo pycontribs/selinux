@@ -1,0 +1,9 @@
+pre_packages:
+  - sudo
+  - python3
+  - python3-pip
+
+python_exec: python3
+expected_python_libselinux: false
+cacert_location: /usr/local/share/ca-certificates/
+cacert_update_cmd: update-ca-certificates

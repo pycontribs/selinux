@@ -1,0 +1,17 @@
+# Assumes to be valid for all python3 first distros:
+# RHEL>=8
+# centos>=8
+# fedora>=28
+packages:
+  - bash
+  - ca-certificates
+  - rsync
+  - gcc  # compiling psutil
+  - python3-devel
+  - python3-libselinux
+  - python3-psutil
+  - python3-virtualenv
+
+python_exec: python3
+cacert_location: /usr/share/pki/ca-trust-source/anchors/
+cacert_update_cmd: update-ca-trust

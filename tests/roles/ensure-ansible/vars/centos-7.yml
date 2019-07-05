@@ -1,0 +1,18 @@
+# packages to be installed ASAP, like those enabling new repos
+pre_packages:
+  - epel-release
+  - sudo
+
+packages:
+  - bash
+  - rsync
+  - gcc  # compiling psutil
+  - python2-devel
+  - python2-pip
+  - python2-psutil
+  - python
+  - libselinux-python
+
+python_exec: python
+# python3 from centos-7 does not have a libselinux
+# see https://github.com/ansible/ansible/issues/50983
