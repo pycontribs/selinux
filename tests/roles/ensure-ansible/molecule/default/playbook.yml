@@ -1,0 +1,83 @@
+---
+
+- name: Build the distributables
+  hosts: localhost
+  tasks:
+
+    - name: build the packages
+      command: tox -e dist
+      args:
+        chdir: ../..
+
+- name: Converge
+  hosts: all
+  gather_facts: false
+  vars:
+    test_dir: /root/src
+    expected_python_libselinux: "{{ ansible_os_family | lower in ['redhat'] }}"
+  tasks:
+
+    - name: Run ensure-ansible role
+      import_role:
+        name: ensure-ansible
+
+    - name: Create a directory if it does not exist
+      file:
+        path: "{{ test_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Deploy package wheel(s)
+      copy:
+        src: "{{ item }}"
+        dest: "{{ test_dir }}/"
+      with_fileglob:
+        - "{{ playbook_dir }}/../../../../../dist/*.whl"
+
+    - name: Test install from wheel to virtualenv
+      environment:
+        PYTHONWARNINGS: ignore:DEPRECATION::pip._internal.cli.base_command
+        PIP_DISABLE_PIP_VERSION_CHECK: 1
+      become: true
+      # set -u not included due https://github.com/pypa/virtualenv/issues/1029
+      shell: |
+        set -exo pipefail
+        {{ python_exec }} -m virtualenv --version >/dev/null 2>&1 || {{ python_exec }} -m pip install --user virtualenv
+        {{ python_exec }} -m virtualenv ~/v
+        source ~/v/bin/activate
+        {{ python_exec }} -m pip install {{ test_dir }}/*.whl
+        {{ python_exec }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
+        deactivate
+        rm -rf ~/v
+      args:
+        executable: /bin/bash
+        warn: false
+
+    - name: install w/o virtualenv does not mess original library
+      # we use sudo here because rhel8 container we use has a default user app-root user
+      # which has its own implicit *isolated* virtualenv (with no deactivate), which means
+      # that it will not be able to detect the library.
+      # TODO(ssbarnea): Find a way to fix and test the app-root use-case.
+      become: true
+      environment:
+        PYTHONWARNINGS: ignore:DEPRECATION::pip._internal.cli.base_command
+        PIP_DISABLE_PIP_VERSION_CHECK: 1
+      shell: |
+        set -euxo pipefail
+        set
+        whoami
+        pwd
+        {% if expected_python_libselinux %}
+        # that should be the original selinux library:
+        {{ python_exec }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
+        {% endif %}
+        {{ python_exec }} -m pip install {{ test_dir }}/*.whl
+        # that should load the shim selinux library:
+        {% if expected_python_libselinux %}
+        {{ python_exec }} -c "import selinux; assert selinux.is_selinux_enabled() in [0, 1]"
+        {% else %}
+        {# if platform does not support selinux, function should return false #}
+        {{ python_exec }} -c "import selinux; assert not selinux.is_selinux_enabled()"
+        {% endif %}
+      args:
+        executable: /bin/bash

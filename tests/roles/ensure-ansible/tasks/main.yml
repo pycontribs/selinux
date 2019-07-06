@@ -1,0 +1,55 @@
+---
+
+- block:
+    - name: Attempt to gather facts
+      setup:
+        gather_subset: all
+
+  rescue:
+    - name: Attempt to bootstrap python
+      become_user: root
+      raw: |
+        /bin/bash -c "apt-get update && apt-get install -y python3 python3-apt"
+
+    - name: Retry gather facts
+      setup:
+        gather_subset: all
+
+- name: Include OS specific variables
+  include_vars: "{{ item }}"
+  failed_when: false
+  loop:
+    - "{{ ansible_os_family | lower }}.yml"
+    - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+    - "{{ ansible_distribution | lower }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version.split('.')[0:2] | join('-') | lower }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version.split('.')[0:3] | join('-') | lower }}.yml"
+
+# TODO: also look for CURL_CA_BUNDLE, REQUESTS_CA_BUNDLE, SSL_CERT_FILE
+- name: Inject our CA certificate
+  when: lookup('env', 'SSL_CERT_FILE')
+  copy:
+    src: "{{ lookup('env', 'SSL_CERT_FILE') }}"
+    dest: "{{ cacert_location }}"
+  register: result
+
+- name: Update CA certificates
+  when: result is changed
+  command: |
+    {{ cacert_update_cmd }}
+
+# TODO: enable proxy
+
+# cannot use become because we likely not have `sudo`
+- name: pre-install system packages
+  when: pre_packages is defined
+  package:
+    name: "{{ pre_packages }}"
+
+# by now we should have `sudo`
+- name: install system packages
+  when: packages is defined
+  become: true
+  package:
+    name: "{{ packages }}"
