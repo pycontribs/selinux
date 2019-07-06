@@ -6,14 +6,15 @@ inside virtualenvs: ModuleNotFoundError: No module named 'selinux'
 """
 
 __author__ = """Sorin Sbarnea"""
-__email__ = 'sorin.sbarnea@gmail.com'
-__version__ = '0.1.4'
+__email__ = "sorin.sbarnea@gmail.com"
+__version__ = "0.1.4"
 
 import json
 import os
 import platform
 import subprocess
 import sys
+
 try:
     from imp import reload
 except ImportError:  # py34+
@@ -22,6 +23,7 @@ except ImportError:  # py34+
 
 class add_path(object):
     """Context manager for adding path to sys.path"""
+
     def __init__(self, path):
         self.path = path
 
@@ -44,16 +46,16 @@ def is_selinux_mls_enabled():
 
 
 # selinux python library should be loaded only on selinux systems
-if platform.system() == 'Linux' and os.path.isfile('/etc/selinux/config'):
+if platform.system() == "Linux" and os.path.isfile("/etc/selinux/config"):
 
     def add_location(location):
         """Try to add a possble location for the selinux module"""
-        if os.path.isdir(os.path.join(location, 'selinux')):
+        if os.path.isdir(os.path.join(location, "selinux")):
             with add_path(location):
                 # And now we replace outselves with the original selinux module
-                reload(sys.modules['selinux'])
+                reload(sys.modules["selinux"])
                 # Validate that we can perform libselinux calls
-                if sys.modules['selinux'].is_selinux_enabled() not in [0, 1]:
+                if sys.modules["selinux"].is_selinux_enabled() not in [0, 1]:
                     raise RuntimeError("is_selinux_enabled returned error.")
                 return True
         return False
@@ -62,13 +64,14 @@ if platform.system() == 'Linux' and os.path.isfile('/etc/selinux/config'):
         """Get sitepackage locations from system python"""
         # Do not ever use sys.executable here
         # See https://github.com/pycontribs/selinux/issues/17 for details
-        system_python = "/usr/bin/python%s" % \
-            platform.python_version_tuple()[0]
+        system_python = "/usr/bin/python%s" % platform.python_version_tuple()[0]
 
         system_sitepackages = json.loads(
-            subprocess.check_output([
-                system_python, "-c",
-                "import json, site; print(json.dumps(site.getsitepackages()))"
+            subprocess.check_output(
+                [
+                    system_python,
+                    "-c",
+                    "import json, site; print(json.dumps(site.getsitepackages()))",
                 ]
             ).decode("utf-8")
         )
@@ -85,7 +88,8 @@ if platform.system() == 'Linux' and os.path.isfile('/etc/selinux/config'):
                 break
 
         if not success:
-            raise Exception("Failed to detect selinux python bindings at %s" %
-                            system_sitepackages)
+            raise Exception(
+                "Failed to detect selinux python bindings at %s" % system_sitepackages
+            )
 
     check_system_sitepackages()
