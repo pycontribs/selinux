@@ -12,6 +12,7 @@ __version__ = "0.1.4"
 import json
 import os
 import platform
+import re
 import subprocess
 import sys
 
@@ -19,6 +20,16 @@ try:
     from imp import reload
 except ImportError:  # py34+
     from importlib import reload
+
+def __has_selinux():
+	selfile = '/etc/selinux/config'
+	if os.path.isfile(selfile):
+		with open(selfile, 'r') as selfile:
+			for line in selfile:
+				if re.match("SELINUX=", line):
+					index = line.find("=")
+					selstate = line[index+1:len(line)].rstrip('\n')
+					return selstate != 'Disabled'
 
 
 class add_path(object):
@@ -46,7 +57,7 @@ def is_selinux_mls_enabled():
 
 
 # selinux python library should be loaded only on selinux systems
-if platform.system() == "Linux" and os.path.isfile("/etc/selinux/config"):
+if platform.system() == "Linux" and __has_selinux():
 
     def add_location(location):
         """Try to add a possble location for the selinux module"""
