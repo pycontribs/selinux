@@ -17,6 +17,10 @@
     expected_python_libselinux: "{{ ansible_os_family | lower in ['redhat'] }}"
   tasks:
 
+    - name: install requirements
+      package:
+        name: policycoreutils
+
     - name: Run ensure-ansible role
       import_role:
         name: ensure-ansible
