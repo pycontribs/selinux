@@ -33,6 +33,9 @@ jobs:
     - name: py36
       python: "3.6"
       env: TOXENV=py36
+    - name: py38
+      python: "3.8-dev"
+      env: TOXENV=py38
     - name: py27
       python: "2.7"
       env: TOXENV=py27
