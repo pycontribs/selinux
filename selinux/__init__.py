@@ -64,7 +64,17 @@ if platform.system() == "Linux" and os.path.isfile("/etc/selinux/config"):
         """Get sitepackage locations from system python"""
         # Do not ever use sys.executable here
         # See https://github.com/pycontribs/selinux/issues/17 for details
-        system_python = "/usr/bin/python%s" % platform.python_version_tuple()[0]
+        system_python = None
+        python_exec_name = "python%s" % platform.python_version_tuple()[0]
+        for exec_dir in os.get_exec_path():
+            python_exec_full_path = os.path.join(exec_dir, python_exec_name)
+            if os.access(python_exec_full_path, os.X_OK):
+                system_python = python_exec_full_path
+                break
+        if system_python == None:
+            raise Exception(
+                "Failed to find %s executable in your $PATH" % python_exec_name
+            )
 
         system_sitepackages = json.loads(
             subprocess.check_output(
