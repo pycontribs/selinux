@@ -45,11 +45,27 @@ def is_selinux_mls_enabled():
     return 0
 
 
+def linux_distribution():
+    # see https://github.com/easybuilders/easybuild/wiki/OS_flavor_name_version
+    try:
+        return platform.linux_distribution()[0].lower()
+    except Exception:
+        return "N/A"
+
+
+def should_have_selinux():
+    distro = linux_distribution()
+    if platform.system() == "Linux" and os.path.isfile("/etc/selinux/config"):
+        if distro not in ["ubuntu", "debian"]:
+            return True
+    return False
+
+
 # selinux python library should be loaded only on selinux systems
-if platform.system() == "Linux" and os.path.isfile("/etc/selinux/config"):
+if should_have_selinux():
 
     def add_location(location):
-        """Try to add a possble location for the selinux module"""
+        """Try to add a possible location for the selinux module"""
         if os.path.isdir(os.path.join(location, "selinux")):
             with add_path(location):
                 # And now we replace outselves with the original selinux module

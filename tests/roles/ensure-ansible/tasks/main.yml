@@ -34,10 +34,14 @@
     dest: "{{ cacert_location }}"
   register: result
 
+- name: install ca-certificates on debian
+  when: ansible_os_family == 'Debian'
+  package:
+    name: ca-certificates
+
 - name: Update CA certificates
   when: result is changed
-  command: |
-    {{ cacert_update_cmd }}
+  raw: "{{ cacert_update_cmd }}"
 
 # TODO: enable proxy
 
@@ -53,3 +57,7 @@
   become: true
   package:
     name: "{{ packages }}"
+  retries: 2
+  delay: 5
+  register: result
+  until: result is success

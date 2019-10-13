@@ -1,6 +1,6 @@
 # packages to be installed ASAP, like those enabling new repos
 pre_packages:
-  - epel-release
+  - epel-release  # needed for python2-pip
   - sudo
 
 packages:
