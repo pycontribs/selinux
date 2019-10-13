@@ -6,10 +6,10 @@
         gather_subset: all
 
   rescue:
-    - name: Attempt to bootstrap python
+    - name: Attempt to bootstrap ansible requirements for apt systems
       become_user: root
       raw: |
-        /bin/bash -c "apt-get update && apt-get install -y python3 python3-apt"
+        /bin/bash -c "apt-get update && apt-get install -y python3 python3-apt ca-certificates aptitude sudo"
 
     - name: Retry gather facts
       setup:

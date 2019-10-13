@@ -11,11 +11,21 @@
 
 - name: Converge
   hosts: all
+  # at this stage gather facts would fail (ex ubuntu)
   gather_facts: false
   vars:
     test_dir: /root/src
     expected_python_libselinux: "{{ ansible_os_family | lower in ['redhat'] }}"
   tasks:
+
+    - name: boostrap python on systems with apt
+      raw: which apt && apt-get update && apt-get install -y python3 && python --version
+      failed_when: false
+      register: which_apt
+
+    - name: gather min facts
+      setup:
+        gather_subset: pkg_mgr
 
     - name: install requirements
       package:
