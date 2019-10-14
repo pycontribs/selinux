@@ -43,6 +43,13 @@ platforms:
     env:
       <<: *env
 
+  - name: debian
+    hostname: debian
+    image: debian:latest
+    dockerfile: ../Dockerfile.j2
+    env:
+      <<: *env
+
 provisioner:
   name: ansible
   env:
