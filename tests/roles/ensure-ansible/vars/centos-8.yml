@@ -1,0 +1,15 @@
+# packages to be installed ASAP, like those enabling new repos
+pre_packages:
+  # - epel-release  # needed for python2-pip
+  - sudo
+
+packages:
+  - bash
+  - rsync
+  - gcc  # compiling psutil
+  - python3
+  - python3-devel
+  - python3-libselinux
+  - python3-pip
+
+python_exec: python3

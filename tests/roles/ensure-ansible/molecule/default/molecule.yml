@@ -13,6 +13,13 @@ platforms:
       https_proxy: "${https_proxy}"
       no_proxy: "${no_proxy}"
 
+  - name: centos8
+    hostname: centos8
+    image: centos:8
+    dockerfile: ../Dockerfile.j2
+    env:
+      <<: *env
+
   - name: fedora
     hostname: fedora
     image: fedora:latest
@@ -32,6 +39,13 @@ platforms:
   - name: ubuntu
     hostname: ubuntu
     image: ubuntu:latest
+    dockerfile: ../Dockerfile.j2
+    env:
+      <<: *env
+
+  - name: debian
+    hostname: debian
+    image: debian:latest
     dockerfile: ../Dockerfile.j2
     env:
       <<: *env
