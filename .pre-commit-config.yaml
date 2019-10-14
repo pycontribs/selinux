@@ -23,6 +23,10 @@ repos:
       - id: flake8
         additional_dependencies:
           - flake8-black
+  - repo: https://github.com/pre-commit/mirrors-mypy.git
+    rev: v0.730
+    hooks:
+      - id: mypy
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.17.0
     hooks:
