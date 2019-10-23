@@ -16,9 +16,9 @@ import subprocess
 import sys
 
 try:
-    from imp import reload  # type: ignore  # noqa
-except ImportError:  # py34+
     from importlib import reload  # type: ignore  # noqa
+except ImportError:  # py < 34
+    from imp import reload  # type: ignore  # noqa
 
 
 class add_path(object):
