@@ -20,6 +20,8 @@ try:
 except ImportError:  # py < 34
     from imp import reload  # type: ignore  # noqa
 
+import distro
+
 
 class add_path(object):
     """Context manager for adding path to sys.path"""
@@ -45,18 +47,9 @@ def is_selinux_mls_enabled():
     return 0
 
 
-def linux_distribution():
-    # see https://github.com/easybuilders/easybuild/wiki/OS_flavor_name_version
-    try:
-        return platform.linux_distribution()[0].lower()
-    except Exception:
-        return "N/A"
-
-
 def should_have_selinux():
-    distro = linux_distribution()
     if platform.system() == "Linux" and os.path.isfile("/etc/selinux/config"):
-        if distro not in ["ubuntu", "debian"]:
+        if distro.id() not in ["ubuntu", "debian"]:
             return True
     return False
 
