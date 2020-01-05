@@ -1,0 +1,18 @@
+- project:
+    check:
+      jobs:
+        - tox-py27: &py27
+            pre-run: playbooks/pre-run-docker.yml
+            success-url: "tox/reports.html"
+            failure-url: "tox/reports.html"
+        - tox-py36: &py36
+            pre-run: playbooks/pre-run-docker.yml
+            success-url: "tox/reports.html"
+            failure-url: "tox/reports.html"
+            nodeset: rdo-fedora-28
+    gate:
+      jobs:
+        - tox-py27:
+            <<: *py27
+        - tox-py36:
+            <<: *py36
