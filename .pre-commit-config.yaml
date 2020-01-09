@@ -1,12 +1,12 @@
 ---
 repos:
   - repo: https://github.com/python/black
-    rev: 19.3b0
+    rev: 19.10b0
     hooks:
       - id: black
         language_version: python3
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v2.4.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -18,28 +18,30 @@ repos:
       - id: check-yaml
         files: .*\.(yaml|yml)$
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.7.8
+    rev: 3.7.9
     hooks:
       - id: flake8
         additional_dependencies:
           - flake8-black
   - repo: https://github.com/pre-commit/mirrors-mypy.git
-    rev: v0.730
+    rev: v0.761
     hooks:
       - id: mypy
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.17.0
+    rev: v1.20.0
     hooks:
       - id: yamllint
         files: \.(yaml|yml)$
         types: [file, yaml]
         entry: yamllint --strict -f parsable
   - repo: https://github.com/ansible/ansible-lint
-    rev: v4.1.1a0
+    rev: v4.2.0
     hooks:
       - id: ansible-lint
-        files: \.(yaml|yml)$
-        entry: env ANSIBLE_LIBRARY=./library ansible-lint --force-color -v
+        always_run: true
+        pass_filenames: false
+        verbose: true
+        entry: ansible-lint --force-color -v
   - repo: https://github.com/openstack-dev/bashate.git
     rev: 0.6.0
     hooks:

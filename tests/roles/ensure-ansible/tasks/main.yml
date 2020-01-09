@@ -7,6 +7,7 @@
 
   rescue:
     - name: Attempt to bootstrap ansible requirements for apt systems
+      become: true
       become_user: root
       raw: |
         /bin/bash -c "apt-get update && apt-get install -y python3 python3-apt ca-certificates aptitude sudo"
