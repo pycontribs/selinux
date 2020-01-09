@@ -1,9 +1,13 @@
 ---
+conditions: v1
 dist: xenial
-# Config file for automatic testing at travis-ci.org
+
+git:
+  depth: 200
 
 services:
   - docker
+
 language: python
 
 branches:
@@ -20,7 +24,7 @@ os:
   - linux
 before_install:
   - nvm install $TRAVIS_NODE_VERSION
-  - which tox >/dev/null || if [ -z ${VIRTUAL_ENV+x} ]; then python -m pip install --user tox tox-pyenv; else python -m pip install tox tox-pyenv; fi
+  - pip install tox-venv tox-tags
 jobs:
   fast_finish: true
   include:
