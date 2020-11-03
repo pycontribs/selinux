@@ -8,6 +8,7 @@
       command: tox -e dist
       args:
         chdir: ../..
+      changed_when: false
 
 - name: Converge
   hosts: all
@@ -22,6 +23,7 @@
       raw: which apt && apt-get update && apt-get install -y python3 && python --version
       failed_when: false
       register: which_apt
+      changed_when: true
 
     - name: gather min facts
       setup:
@@ -31,9 +33,9 @@
       package:
         name: policycoreutils
 
-    - name: Run ensure-ansible role
+    - name: Run ensure_ansible role
       import_role:
-        name: ensure-ansible
+        name: ensure_ansible
 
     - name: Create a directory if it does not exist
       file:
@@ -45,8 +47,10 @@
       copy:
         src: "{{ item }}"
         dest: "{{ test_dir }}/"
+        mode: 0644
       with_fileglob:
         - "{{ playbook_dir }}/../../../../../dist/*.whl"
+      changed_when: true
 
     - name: Test install from wheel to virtualenv
       environment:
@@ -66,6 +70,7 @@
       args:
         executable: /bin/bash
         warn: false
+      changed_when: false
 
     - name: install w/o virtualenv does not mess original library
       # we use sudo here because rhel8 container we use has a default user app-root user
@@ -95,3 +100,4 @@
         {% endif %}
       args:
         executable: /bin/bash
+      changed_when: true
