@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.com/pycontribs/selinux.svg?branch=master
-    :target: https://travis-ci.com/pycontribs/selinux
+.. image:: https://zuul-ci.org/gated.svg
+    :target: https://dashboard.zuul.ansible.com/t/ansible/builds?project=pycontribs/selinux
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/python/black
