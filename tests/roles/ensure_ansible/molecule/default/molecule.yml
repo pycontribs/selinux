@@ -27,14 +27,14 @@ platforms:
     env:
       <<: *env
 
-  - name: rhel8
-    hostname: rhel8
-    image: ubi8/python-36
-    registry:
-      url: registry.access.redhat.com
-    dockerfile: ../Dockerfile.j2
-    env:
-      <<: *env
+  # - name: rhel8
+  #   hostname: rhel8
+  #   image: ubi8/python-36
+  #   registry:
+  #     url: registry.access.redhat.com
+  #   dockerfile: ../Dockerfile.j2
+  #   env:
+  #     <<: *env
 
   - name: ubuntu
     hostname: ubuntu
@@ -63,6 +63,3 @@ scenario:
     - prepare
     - converge
     - destroy
-
-lint:
-  enabled: false

@@ -33,6 +33,7 @@
   copy:
     src: "{{ lookup('env', 'SSL_CERT_FILE') }}"
     dest: "{{ cacert_location }}"
+    mode: 0644
   register: result
 
 - name: install ca-certificates on debian
