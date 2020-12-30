@@ -8,7 +8,7 @@
 selinux
 =======
 
-Pure-python selinux **shim** module for use in virtualenvs in oder to avoid
+Pure-python selinux **shim** module for use in virtualenvs in order to avoid
 failure to load selinux in Ansible modules.
 
 You still need to have libselinux python bindings package installed on your
