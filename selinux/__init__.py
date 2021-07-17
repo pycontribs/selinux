@@ -73,12 +73,10 @@ if should_have_selinux():
         """Get sitepackage locations from system python"""
         # Do not ever use sys.executable here
         # See https://github.com/pycontribs/selinux/issues/17 for details
-        system_python = "/usr/bin/python%s" % platform.python_version_tuple()[0]
-
         system_sitepackages = json.loads(
             subprocess.check_output(
                 [
-                    system_python,
+                    "/usr/libexec/platform-python",
                     "-c",
                     "import json, site; print(json.dumps(site.getsitepackages()))",
                 ]
