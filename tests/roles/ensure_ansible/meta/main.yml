@@ -4,25 +4,18 @@ galaxy_info:
   description: Role that bootstrap host to be managed via Ansible
   license: MIT
 
-  min_ansible_version: 2.6
+  min_ansible_version: "2.10"
 
   platforms:
     - name: Fedora
       versions:
-        - 28
-        - 29
-        - 30
-    - name: CentOS
+        - all
+    - name: EL
       versions:
-        - 7
-    - name: RHEL
-      versions:
-        - 7
-        - 8
+        - all
     - name: Ubuntu
       versions:
-        - Xenial
-        - Bionic
+        - all
 
   galaxy_tags: []
 
