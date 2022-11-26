@@ -21,11 +21,11 @@ repos:
     hooks:
       - id: flake8
   - repo: https://github.com/pre-commit/mirrors-mypy.git
-    rev: v0.982
+    rev: v0.991
     hooks:
       - id: mypy
   - repo: https://github.com/ansible/ansible-lint
-    rev: v6.8.6
+    rev: v6.8.7
     hooks:
       - id: ansible-lint
   - repo: https://github.com/openstack-dev/bashate.git
