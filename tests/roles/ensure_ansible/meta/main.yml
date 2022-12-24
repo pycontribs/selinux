@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  namespace: acme
   author: Sorin Sbarnea
   description: Role that bootstrap host to be managed via Ansible
   license: MIT
