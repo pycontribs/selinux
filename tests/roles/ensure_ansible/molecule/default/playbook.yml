@@ -33,7 +33,7 @@
 
     - name: Run ensure_ansible role
       ansible.builtin.import_role:
-        name: ensure_ansible
+        name: acme.ensure_ansible
 
     - name: Create a directory if it does not exist
       ansible.builtin.file:
