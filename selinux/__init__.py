@@ -72,10 +72,7 @@ if should_have_selinux():
     def get_system_sitepackages():
         """Get sitepackage locations from system python"""
 
-        python_paths = [
-            "/usr/bin/python%s",
-            "/usr/local/bin/python%s"
-            ]
+        python_paths = ["/usr/bin/python%s", "/usr/local/bin/python%s"]
         path_check_count = 0
 
         getsitepackages_subprocess = lambda path: json.loads(
