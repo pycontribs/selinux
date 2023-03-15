@@ -71,9 +71,14 @@ if should_have_selinux():
 
     def get_system_sitepackages():
         """Get sitepackage locations from system python"""
-        system_python = sys.executable
 
-        system_sitepackages = json.loads(
+        python_paths = [
+            "/usr/bin/python%s",
+            "/usr/local/bin/python%s"
+            ]
+        path_check_count = 0
+
+        getsitepackages_subprocess = lambda path: json.loads(
             subprocess.check_output(
                 [
                     system_python,
@@ -82,7 +87,17 @@ if should_have_selinux():
                 ]
             ).decode("utf-8")
         )
-        return system_sitepackages
+
+        while path_check_count < len(python_paths):
+            try:
+                system_python = python_paths[path_check_count] % ".".join(
+                    [str(item) for item in platform.python_version_tuple()[0:2]]
+                )
+                return getsitepackages_subprocess(system_python)
+            except FileNotFoundError:
+                path_check_count += 1
+        else:
+            return getsitepackages_subprocess(sys.executable)
 
     def check_system_sitepackages():
         """Try add selinux module from any of the python site-packages"""
