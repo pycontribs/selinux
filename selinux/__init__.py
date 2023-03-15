@@ -86,10 +86,7 @@ if should_have_selinux():
 
         # Here we can add other possible python installation paths
         # The %s will be replaced with the curren python version
-        python_paths = [
-            "/usr/bin/python%s",
-            "/usr/local/bin/python%s"
-            ]
+        python_paths = ["/usr/bin/python%s", "/usr/local/bin/python%s"]
 
         path_check_count = 0
         success = False
@@ -99,9 +96,8 @@ if should_have_selinux():
         # Then we'll try other commonly used python installation places for the current python version
         for python_path in python_paths:
             tmp.append(
-                python_path % ".".join(
-                    [str(item) for item in platform.python_version_tuple()[0:2]]
-                )
+                python_path
+                % ".".join([str(item) for item in platform.python_version_tuple()[0:2]])
             )
         python_paths = tmp
         del tmp
@@ -109,7 +105,9 @@ if should_have_selinux():
         # We try to find selinux in all provided paths
         while path_check_count < len(python_paths) and not success:
             try:
-                system_sitepackages = get_system_sitepackages(python_paths[path_check_count])
+                system_sitepackages = get_system_sitepackages(
+                    python_paths[path_check_count]
+                )
                 for candidate in system_sitepackages:
                     success = add_location(candidate)
                     if success:
@@ -124,7 +122,8 @@ if should_have_selinux():
 
         if not success:
             raise Exception(
-                "Failed to detect selinux python bindings at %s" % " or ".join(python_paths)
+                "Failed to detect selinux python bindings at %s"
+                % " or ".join(python_paths)
             )
 
     check_system_sitepackages()
