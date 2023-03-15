@@ -69,17 +69,9 @@ if should_have_selinux():
                 return True
         return False
 
-    def check_system_sitepackages():
-        """Try add selinux module from any of the python site-packages of probably installed python variants"""
-
-        # Here we can add other possible python installation paths
-        # The %s will be replaced with the curren python version
-        python_paths = ["/usr/bin/python%s", "/usr/local/bin/python%s"]
-
-        path_check_count = 0
-        success = False
-
-        getsitepackages_subprocess = lambda python_path: json.loads(
+    def get_system_sitepackages(python_path):
+        """Extract python site-package locations for a provided python installation path"""
+        return json.loads(
             subprocess.check_output(
                 [
                     python_path,
@@ -89,13 +81,27 @@ if should_have_selinux():
             ).decode("utf-8")
         )
 
+    def check_system_sitepackages():
+        """Try add selinux module from any of the python site-packages of probably installed python variants"""
+
+        # Here we can add other possible python installation paths
+        # The %s will be replaced with the curren python version
+        python_paths = [
+            "/usr/bin/python%s",
+            "/usr/local/bin/python%s"
+            ]
+
+        path_check_count = 0
+        success = False
+
         # First we'll check for the currently executed python
         tmp = [sys.executable]
         # Then we'll try other commonly used python installation places for the current python version
         for python_path in python_paths:
             tmp.append(
-                python_path
-                % ".".join([str(item) for item in platform.python_version_tuple()[0:2]])
+                python_path % ".".join(
+                    [str(item) for item in platform.python_version_tuple()[0:2]]
+                )
             )
         python_paths = tmp
         del tmp
@@ -103,9 +109,7 @@ if should_have_selinux():
         # We try to find selinux in all provided paths
         while path_check_count < len(python_paths) and not success:
             try:
-                system_sitepackages = getsitepackages_subprocess(
-                    python_paths[path_check_count]
-                )
+                system_sitepackages = get_system_sitepackages(python_paths[path_check_count])
                 for candidate in system_sitepackages:
                     success = add_location(candidate)
                     if success:
@@ -120,8 +124,7 @@ if should_have_selinux():
 
         if not success:
             raise Exception(
-                "Failed to detect selinux python bindings at %s"
-                % " or ".join(python_paths)
+                "Failed to detect selinux python bindings at %s" % " or ".join(python_paths)
             )
 
     check_system_sitepackages()
