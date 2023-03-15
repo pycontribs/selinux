@@ -77,6 +77,9 @@ if should_have_selinux():
             [str(item) for item in platform.python_version_tuple()[0:2]]
         )
 
+        if not os.path.isfile(system_python):
+            system_python = "/usr/bin/python%s" % platform.python_version_tuple()[0]
+
         system_sitepackages = json.loads(
             subprocess.check_output(
                 [
