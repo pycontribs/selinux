@@ -49,7 +49,7 @@ jobs:
       PYTEST_REQPASS: 1
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # needed by setuptools-scm
 
@@ -130,7 +130,7 @@ jobs:
           jobs: ${{ toJSON(needs) }}
 
       - name: Check out src from Git
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Notify repository owners about lint change affecting them
         uses: sourcegraph/codenotify@v0.6.4
