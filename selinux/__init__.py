@@ -103,4 +103,7 @@ if should_have_selinux():
                 "Failed to detect selinux python bindings at %s" % system_sitepackages
             )
 
-    check_system_sitepackages()
+    try:
+        check_system_sitepackages()
+    except Exception as exc:
+        raise ImportError(str(exc)) from exc
